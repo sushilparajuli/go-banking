@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"go-banking/app/types"
+	"github.com/sushilparajuli/go-banking/app/types"
 	"net/http"
 )
 

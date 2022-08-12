@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-banking/app"
+	"github.com/sushilparajuli/go-banking/app"
 )
 
 func main() {

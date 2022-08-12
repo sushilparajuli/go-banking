@@ -1,5 +1,5 @@
 ### get customers
-GET http://localhost:9000/customer
+GET http://localhost:9000/customers
 
 
 ### greet
