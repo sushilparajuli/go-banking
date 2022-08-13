@@ -1,18 +1,32 @@
 package app
 
 import (
-	"github.com/sushilparajuli/go-banking/app/handlers"
+	"github.com/gorilla/mux"
+	"github.com/sushilparajuli/go-banking/domain"
+	"github.com/sushilparajuli/go-banking/service"
 	"log"
 	"net/http"
+	"time"
 )
 
 func App() {
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/greet", handlers.Greet)
+	r := mux.NewRouter()
 
-	mux.HandleFunc("/customers", handlers.GetAllCustomers)
+	// Wiring
+	//ch := CustomerHandlers{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+	ch := CustomerHandlers{service.NewCustomerService(domain.NewCustomerRepositoryDB())}
+	r.HandleFunc("/customers", ch.GetAllCustomers).Methods(http.MethodGet)
+	r.HandleFunc("/customers/{customer_id:[0-9]+}", ch.GetCustomer).Methods(http.MethodGet)
 
 	// starting server
-	log.Fatal(http.ListenAndServe("localhost:9000", mux))
+	srv := &http.Server{
+		Handler: r,
+		Addr:    ":9000",
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }
