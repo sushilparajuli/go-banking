@@ -16,7 +16,10 @@ func App() {
 	// Wiring
 	//ch := CustomerHandlers{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
 	ch := CustomerHandlers{service.NewCustomerService(domain.NewCustomerRepositoryDB())}
-	r.HandleFunc("/customers", ch.GetAllCustomers).Methods(http.MethodGet)
+	r.HandleFunc(
+		"/customers",
+		ch.GetAllCustomers,
+	).Methods(http.MethodGet)
 	r.HandleFunc("/customers/{customer_id:[0-9]+}", ch.GetCustomer).Methods(http.MethodGet)
 
 	// starting server

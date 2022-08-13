@@ -40,11 +40,13 @@ func (d *CustomerRepositoryDb) ById(id string) (*Customer, *errors.AppError) {
 
 	var c Customer
 	err := row.Scan(&c.Id, &c.Name, &c.City, &c.ZipCode, &c.DateOfBirth, &c.Status)
-	if err == sql.ErrNoRows {
-		return nil, errors.NewNotFoundError("customer not found")
-	} else {
-		log.Println("Error while scanning customer table" + err.Error())
-		return nil, errors.NewUnexpectedError("unexpected database error")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.NewNotFoundError("customer not found")
+		} else {
+			log.Println("Error while scanning customer table" + err.Error())
+			return nil, errors.NewUnexpectedError("unexpected database error")
+		}
 	}
 	return &c, nil
 }
