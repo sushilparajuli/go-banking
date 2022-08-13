@@ -2,4 +2,4 @@
 GET http://localhost:9000/customers
 
 ### get customer
-GET http://localhost:9000/customers/1000a
+GET http://localhost:9000/customers/1000
