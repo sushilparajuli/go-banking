@@ -3,6 +3,7 @@ package domain
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/sushilparajuli/go-banking/errors"
 	"github.com/sushilparajuli/go-banking/logger"
 	"log"
@@ -10,20 +11,19 @@ import (
 )
 
 type CustomerRepositoryDb struct {
-	client *sql.DB
+	client *sqlx.DB
 }
 
 func (d *CustomerRepositoryDb) FindAll(status string) ([]Customer, *errors.AppError) {
-
-	var rows *sql.Rows
 	var err error
 	var findAllSql string
+	customers := make([]Customer, 0)
 	if status == "" {
 		findAllSql = "select * from customers"
-		rows, err = d.client.Query(findAllSql)
+		err = d.client.Select(&customers, findAllSql)
 	} else {
 		findAllSql = "select * from customers where status = ?"
-		rows, err = d.client.Query(findAllSql, status)
+		err = d.client.Select(&customers, findAllSql, status)
 	}
 
 	if err != nil {
@@ -31,25 +31,13 @@ func (d *CustomerRepositoryDb) FindAll(status string) ([]Customer, *errors.AppEr
 		return nil, errors.NewUnexpectedError("Unexpected database error")
 	}
 
-	customers := make([]Customer, 0)
-	for rows.Next() {
-		var c Customer
-		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.ZipCode, &c.DateOfBirth, &c.Status)
-		if err != nil {
-			logger.Error("Error while scanning customer table" + err.Error())
-			return nil, errors.NewUnexpectedError("Unexpected database error")
-		}
-		customers = append(customers, c)
-	}
 	return customers, nil
 }
 
 func (d *CustomerRepositoryDb) ById(id string) (*Customer, *errors.AppError) {
 	customerSql := "select * from customers where customer_id = ?"
-	row := d.client.QueryRow(customerSql, id)
-
 	var c Customer
-	err := row.Scan(&c.Id, &c.Name, &c.City, &c.ZipCode, &c.DateOfBirth, &c.Status)
+	err := d.client.Get(&c, customerSql, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.NewNotFoundError("customer not found")
@@ -62,7 +50,7 @@ func (d *CustomerRepositoryDb) ById(id string) (*Customer, *errors.AppError) {
 }
 
 func NewCustomerRepositoryDB() *CustomerRepositoryDb {
-	client, err := sql.Open("mysql", "root:root@tcp(db:3306)/banking")
+	client, err := sqlx.Open("mysql", "root:root@tcp(db:3306)/banking")
 	if err != nil {
 		panic(err)
 	}
