@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/sushilparajuli/go-banking/errors"
+	"github.com/sushilparajuli/go-banking/logger"
 	"log"
 	"time"
 )
@@ -26,7 +27,7 @@ func (d *CustomerRepositoryDb) FindAll(status string) ([]Customer, *errors.AppEr
 	}
 
 	if err != nil {
-		log.Println("Error while query customer table")
+		logger.Error("Error while query customer table")
 		return nil, errors.NewUnexpectedError("Unexpected database error")
 	}
 
@@ -35,7 +36,7 @@ func (d *CustomerRepositoryDb) FindAll(status string) ([]Customer, *errors.AppEr
 		var c Customer
 		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.ZipCode, &c.DateOfBirth, &c.Status)
 		if err != nil {
-			log.Println("Error while scanning customer table" + err.Error())
+			logger.Error("Error while scanning customer table" + err.Error())
 			return nil, errors.NewUnexpectedError("Unexpected database error")
 		}
 		customers = append(customers, c)
