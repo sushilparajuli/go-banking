@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/spf13/viper"
 	"github.com/sushilparajuli/go-banking/domain"
 	"github.com/sushilparajuli/go-banking/service"
 	"log"
@@ -25,7 +26,7 @@ func App() {
 	// starting server
 	srv := &http.Server{
 		Handler: r,
-		Addr:    ":9000",
+		Addr:    ":" + viper.GetString("PORT"),
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,

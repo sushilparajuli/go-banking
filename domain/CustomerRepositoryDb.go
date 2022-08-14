@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/spf13/viper"
 	"github.com/sushilparajuli/go-banking/errors"
 	"github.com/sushilparajuli/go-banking/logger"
 	"log"
@@ -50,7 +51,7 @@ func (d *CustomerRepositoryDb) ById(id string) (*Customer, *errors.AppError) {
 }
 
 func NewCustomerRepositoryDB() *CustomerRepositoryDb {
-	client, err := sqlx.Open("mysql", "root:root@tcp(db:3306)/banking")
+	client, err := sqlx.Open("mysql", viper.GetString("MYSQL_URI"))
 	if err != nil {
 		panic(err)
 	}
