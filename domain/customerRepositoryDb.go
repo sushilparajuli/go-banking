@@ -4,26 +4,24 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/spf13/viper"
 	"github.com/sushilparajuli/go-banking/errors"
 	"github.com/sushilparajuli/go-banking/logger"
 	"log"
-	"time"
 )
 
 type CustomerRepositoryDb struct {
 	client *sqlx.DB
 }
 
-func (d *CustomerRepositoryDb) FindAll(status string) ([]Customer, *errors.AppError) {
+func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errors.AppError) {
 	var err error
 	var findAllSql string
 	customers := make([]Customer, 0)
 	if status == "" {
-		findAllSql = "select * from customers"
+		findAllSql = "select customer_id, name, city, zipcode, date_of_birth, status from customers"
 		err = d.client.Select(&customers, findAllSql)
 	} else {
-		findAllSql = "select * from customers where status = ?"
+		findAllSql = "select customer_id, name, city, zipcode, date_of_birth, status from customers where status = ?"
 		err = d.client.Select(&customers, findAllSql, status)
 	}
 
@@ -35,8 +33,8 @@ func (d *CustomerRepositoryDb) FindAll(status string) ([]Customer, *errors.AppEr
 	return customers, nil
 }
 
-func (d *CustomerRepositoryDb) ById(id string) (*Customer, *errors.AppError) {
-	customerSql := "select * from customers where customer_id = ?"
+func (d CustomerRepositoryDb) ById(id string) (*Customer, *errors.AppError) {
+	customerSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where customer_id = ?"
 	var c Customer
 	err := d.client.Get(&c, customerSql, id)
 	if err != nil {
@@ -50,16 +48,6 @@ func (d *CustomerRepositoryDb) ById(id string) (*Customer, *errors.AppError) {
 	return &c, nil
 }
 
-func NewCustomerRepositoryDB() *CustomerRepositoryDb {
-	client, err := sqlx.Open("mysql", viper.GetString("MYSQL_URI"))
-	if err != nil {
-		panic(err)
-	}
-
-	// Important settings
-	client.SetConnMaxLifetime(time.Minute * 3)
-	client.SetMaxOpenConns(10)
-	client.SetMaxIdleConns(10)
-
-	return &CustomerRepositoryDb{client}
+func NewCustomerRepositoryDB(dbClient *sqlx.DB) CustomerRepositoryDb {
+	return CustomerRepositoryDb{dbClient}
 }

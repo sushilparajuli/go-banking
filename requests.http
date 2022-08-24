@@ -1,5 +1,25 @@
 ### get customers
-GET http://localhost:9000/customers?status=active
+GET http://localhost:9000/customers
 
 ### get customer
-GET http://localhost:9000/customers/1000
+GET http://localhost:9000/customers/2000
+
+### post account
+POST http://localhost:9000/customers/2000/account
+content-type: application/json
+
+{
+  "account_type" : "saving",
+  "amount" : 5000.12
+}
+
+### post account
+POST http://localhost:9000/customers/2000/account/95475
+content-type: application/json
+
+{
+  "transaction_type" : "deposit",
+  "amount" : 10000.1
+}
+
+
